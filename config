@@ -1,0 +1,4 @@
+cookie-name = s
+workers     = 10
+key         = d325ed7e35ee6789f19df1c21ab05fbdc85ade779d09828ab78504e332faf3ac1c8d5b33f367f13e53631fdca3bce7a14042562c55f291daca4ec55e9e910bab
+music-dir  = ~/Music

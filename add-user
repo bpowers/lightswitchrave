@@ -1,0 +1,56 @@
+#!/bin/sh
+set -u
+#set -e
+
+CONFIG=./config
+
+# strip whitespace
+read  -rd '' base <<< `grep music-dir $CONFIG | cut -d '=' -f 2`
+
+if [ $# != '1' ]; then
+    echo "usage: $(basename $0) username"
+    exit 1
+fi
+
+# strip leading and trailing whitespace from username
+read  -rd '' username <<< "$1"
+shift
+if [ x"$username" = x ]; then
+    echo "can't have blank username"
+    exit 1
+fi
+
+stty_args=`stty -g`
+stty -echo
+echo -n 'password: '
+read password1
+echo ''
+echo -n 'password again: '
+read password2
+echo ''
+stty $stty_args
+
+if [ x"$password1" != x"$password2" ]; then
+    echo "passwords don't match"
+    exit 1
+fi
+
+if [ x"$password1" = x ]; then
+    echo "can't have blank password"
+    exit 1
+fi
+
+if [ ! -e "$base/.auth" ]; then
+    mkdir -p "$base/.auth"
+fi
+
+userfile="$base/.auth/$username"
+
+if [ -e $userfile ]; then
+    echo "error: user already exists"
+    exit 1
+fi
+
+# and add the password file
+hashed=`echo -n "$username|$password1" | sha256sum | cut -d ' ' -f 1`
+echo -n $hashed >"$userfile"
