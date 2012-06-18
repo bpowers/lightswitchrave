@@ -13,7 +13,7 @@ I originally designed it so that I could access the music I had on my
 desktop at home from my laptop at work, and at this point it performs
 the task admirably.
 
-![Lightswitch Rave in chrome](https://github.com/bpowers/Lightswitch Rave/raw/master/doc/Lightswitch Rave_in_use.png "Lightswitch Rave in Chrome")
+![Lightswitch Rave in chrome](https://github.com/bpowers/lightswitchrave/raw/master/doc/cnote_in_use.png "Lightswitch Rave in Chrome")
 
 Lightswitch Rave uses inotify to watch for new/changed files, so it is
 currently linux only.  kqueue provides similar functionality on
