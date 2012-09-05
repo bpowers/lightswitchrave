@@ -16,8 +16,8 @@ type Dirwatch interface {
 }
 
 type baseDirwatch struct {
-	Paths []string
-	IFlags int
+	Paths   []string
+	IFlags  int
 	watcher *inotify.Watcher
 }
 

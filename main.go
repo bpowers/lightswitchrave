@@ -71,6 +71,8 @@ func main() {
 	http.Handle("/music/", http.StripPrefix("/music",
 		http.FileServer(http.Dir(musicDir))))
 	http.HandleFunc("/api/", proxyToCnote)
+	http.HandleFunc("/pkg/", proxyToGodoc)
+	http.HandleFunc("/doc/", proxyToGodoc)
 
 	watch, err := NewDirwatch(musicDir)
 	if err != nil {
