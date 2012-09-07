@@ -10,7 +10,7 @@ $(EXE):
 	rsync -avz add-user config err static tmpl site
 
 put: $(EXE)
-	rsync -avz site/ boosd.org:site-$(EXE)
+	rsync -cavz site/ boosd.org:site-$(EXE)
 
 clean:
 	rm -rf site
