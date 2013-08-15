@@ -319,20 +319,12 @@ $(function() {
     };
     var App = new AppView;
 
+    // constants
     var codeSpace = ' '.charCodeAt();
     var codeArrowRight = 39;
     var codeArrowLeft = 37;
 
     // ------------------------------------------------- initialization --- //
-    $(document).bind('keypress', function(e) {
-        e.preventDefault();
-        if (e.which === codeSpace) {
-            if (NowPlaying.curr)
-                NowPlaying.togglePause();
-            else
-                NowPlaying.playNext();
-        }
-    });
     $(document).bind('keyup', function(e) {
         if (e.which === codeArrowRight) {
             e.preventDefault();
@@ -340,6 +332,12 @@ $(function() {
         } else if (e.which === codeArrowLeft) {
             e.preventDefault();
             NowPlaying.playPrev();
+        } else if (e.which === codeSpace) {
+            e.preventDefault();
+            if (NowPlaying.curr)
+                NowPlaying.togglePause();
+            else
+                NowPlaying.playNext();
         }
     });
 
