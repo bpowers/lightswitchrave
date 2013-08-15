@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"runtime"
 )
 
 var (
@@ -27,6 +28,9 @@ var (
 )
 
 func main() {
+	// give us as much parallelism as possible
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	devMode := flag.Bool("dev", false, "run on port 8080, rather than 8443")
 	flag.Parse()
 
