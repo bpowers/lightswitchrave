@@ -21,21 +21,21 @@ type baseDirwatch struct {
 	watcher *inotify.Watcher
 }
 
-func (self *baseDirwatch) IsValid(path, dir, file string) bool {
+func (d *baseDirwatch) IsValid(path, dir, file string) bool {
 	log.Println("dirwatch: you should override IsValid")
 	return false
 }
 
-func (self *baseDirwatch) IsModified(path, dir, file string) bool {
+func (d *baseDirwatch) IsModified(path, dir, file string) bool {
 	log.Println("dirwatch: you should override IsModified")
 	return false
 }
 
-func (self *baseDirwatch) OnDelete(path, dir, file string) {
+func (d *baseDirwatch) OnDelete(path, dir, file string) {
 	log.Println("dirwatch: you should override OnDelete")
 }
 
-func (self *baseDirwatch) OnChange(path, dir, file string) {
+func (d *baseDirwatch) OnChange(path, dir, file string) {
 	log.Println("dirwatch: you should override OnChange")
 }
 
@@ -94,9 +94,9 @@ outer:
 }
 
 func NewDirwatch(path string) (result Dirwatch, err error) {
-	self := new(baseDirwatch)
+	d := new(baseDirwatch)
 
-	if self.watcher, err = inotify.NewWatcher(); err != nil {
+	if d.watcher, err = inotify.NewWatcher(); err != nil {
 		return
 	}
 
@@ -109,5 +109,5 @@ func NewDirwatch(path string) (result Dirwatch, err error) {
 	}
 	log.Printf("len files: %d\n", len(mediaFiles))
 
-	return self, nil
+	return d, nil
 }
