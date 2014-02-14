@@ -98,7 +98,7 @@
             collections[m.get('type')].curr = m;
             m.set('selected', true);
             this.url = 'api/' + m.get('type') + '/' + encodeURIComponent(m.get('name'));
-            this.fetch();
+            this.fetch({reset: true});
         }
     });
 
