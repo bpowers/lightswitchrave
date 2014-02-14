@@ -26,11 +26,6 @@
             <a href="http://bobbypowers.net">Bobby Powers</a>
         </div>
 
-        <script type="text/javascript" src="js/vendor/jquery.js"></script>
-        <script type="text/javascript" src="js/vendor/underscore.js"></script>
-        <script type="text/javascript" src="js/vendor/backbone.js"></script>
-        <script type="text/javascript" src="js/main.js"></script>
-
         <script type="text/template" id="list-template">
             <div class="<%= selected ? 'selected' : '' %> row <%= type %>">
                 <a class="<%= type %>" href="#<%= type %>=<%= encodeURIComponent(name) %>"><%= name %></a>
@@ -43,5 +38,9 @@
             </div>
         </script>
 
+        <script type="text/javascript" src="js/vendor/jquery.js"></script>
+        <script type="text/javascript" src="js/vendor/underscore.js"></script>
+        <script type="text/javascript" src="js/vendor/backbone.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
     </body>
 </html>
