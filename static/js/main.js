@@ -33,8 +33,6 @@
             }
         },
         selectedChanged: function(e) {
-            console.log('sel changed');
-            console.log(e);
             var prev = this.attributes._prevSelected;
             var curr = this.attributes.selected;
 
@@ -42,7 +40,7 @@
             if (prev) {
                 var collection = this.get(prev.collection + 's'); // pluralize
                 var items = collection.filter(function(item) {
-                    return item.get('name') === prev.name;
+                    return item.get('name') === prev.item;
                 });
                 if (items.length)
                     items[0].set('selected', false);
@@ -66,6 +64,7 @@
     });
 
     var Artist = Category.extend({
+        idAttribute: 'name',
         defaults: function() {
             return {
                 type: 'artist',
@@ -75,6 +74,7 @@
     });
 
     var Album = Category.extend({
+        idAttribute: 'name',
         defaults: function() {
             return {
                 type: 'album',
@@ -296,8 +296,6 @@
         initialize: function(args) {
             this.nowPlaying = args.nowPlaying;
 
-            this.model.bind('change', this.selectionChanged, this);
-
             this.model.get('artists').bind('add', this.addOne, this);
             this.model.get('artists').bind('reset', this.addAllArtists, this);
 
@@ -328,10 +326,6 @@
         addAllTracks: function() {
             $('#tracks').empty();
             this.tracks.each(this.addTrack, this);
-        },
-        selectionChanged: function(e) {
-            console.log('selection changed');
-            console.log(e)
         },
     });
 
