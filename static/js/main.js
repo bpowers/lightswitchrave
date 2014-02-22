@@ -10,6 +10,48 @@
         return escapedPath.substring(1);
     }
 
+    var App = Backbone.Model.extend({
+        defaults: function() {
+            return {
+                selected: null,
+                _prevSelected: null,
+            }
+        },
+        initialize: function() {
+            this.bind('change:selected', this.selectedChanged, this);
+            this.get('artists').bind('add', this.collectionItemAdded, this);
+            this.get('albums').bind('add', this.collectionItemAdded, this);
+        },
+        collectionItemAdded: function(i) {
+            var selected = this.attributes.selected;
+            if (!selected)
+                return;
+
+            if (i.get('type') === selected.collection &&
+                i.get('name') === selected.item) {
+                i.set('selected', true);
+            }
+        },
+        selectedChanged: function(e) {
+            console.log('sel changed');
+            console.log(e);
+            var prev = this.attributes._prevSelected;
+            var curr = this.attributes.selected;
+
+            // unselect the previous selection
+            if (prev) {
+                var collection = this.get(prev.collection + 's'); // pluralize
+                var items = collection.filter(function(item) {
+                    return item.get('name') === prev.name;
+                });
+                if (items.length)
+                    items[0].set('selected', false);
+            }
+
+            this.set('_prevSelected', curr);
+        }
+    });
+
     // --------------------------------------------------------- models --- //
     var Category = Backbone.Model.extend({
         // the API returns a string per album or artist
@@ -20,7 +62,7 @@
         },
         clear: function() {
             this.destroy();
-        }
+        },
     });
 
     var Artist = Category.extend({
@@ -59,7 +101,7 @@
         },
         clear: function() {
             this.destroy();
-        }
+        },
     });
 
     // ---------------------------------------------------- collections --- //
@@ -69,7 +111,6 @@
         comparator: function(a) {
             return a.get('name').toLowerCase();
         },
-        curr: null
     });
 
     var AlbumList = Backbone.Collection.extend({
@@ -78,7 +119,6 @@
         comparator: function(a) {
             return a.get('name').toLowerCase();
         },
-        curr: null
     });
 
     var TrackList = Backbone.Collection.extend({
@@ -87,6 +127,7 @@
             this.collections = args.collections;
         },
         load: function(m) {
+            /*
             var collections = this.collections;
             // clear any existing highlighted artist or album
             for (k in collections) {
@@ -95,7 +136,7 @@
                     collections[k].curr = null;
                 }
             }
-            collections[m.get('type')].curr = m;
+            collections[m.get('type')].curr = m;*/
             m.set('selected', true);
             this.url = 'api/' + m.get('type') + '/' + encodeURIComponent(m.get('name'));
             this.fetch({reset: true});
@@ -110,12 +151,12 @@
             'click a': 'click'
         },
         initialize: function(args) {
-            this.tracks = args.tracks;
+            this.app = args.app;
             this.model.bind('change', this.render, this);
         },
         curr: null,
         click: function(e) {
-            this.tracks.load(this.model);
+            //this.model.set('selected', true);
         },
         render: function() {
             this.$el.html(this.template(this.model.toJSON()));
@@ -252,44 +293,27 @@
 
     var AppView = Backbone.View.extend({
         el: $('#content'),
-        initial: {},
         initialize: function(args) {
-            // check to see if we are loading a URL with an
-            // already-selected album or artist
-            var hash = location.hash.substring(1);
-            var parts;
-            if (hash) {
-                parts = hash.split('=');
-                if (parts.length === 2 && parts[0] in {'artist':1, 'album':1}) {
-                    this.initial[parts[0]] = decodeURIComponent(parts[1]);
-                }
-            }
-
-            this.artists = args.artists;
-            this.albums = args.albums;
-            this.tracks = args.tracks;
             this.nowPlaying = args.nowPlaying;
 
-            this.artists.bind('add', this.addOne, this);
-            this.artists.bind('reset', this.addAllArtists, this);
+            this.model.bind('change', this.selectionChanged, this);
 
-            this.albums.bind('add', this.addOne, this);
-            this.albums.bind('reset', this.addAllAlbums, this);
+            this.model.get('artists').bind('add', this.addOne, this);
+            this.model.get('artists').bind('reset', this.addAllArtists, this);
 
-            this.tracks.bind('add', this.addTrack, this);
-            this.tracks.bind('reset', this.addAllTracks, this);
+            this.model.get('albums').bind('add', this.addOne, this);
+            this.model.get('albums').bind('reset', this.addAllAlbums, this);
 
-            this.artists.fetch();
-            this.albums.fetch();
+            this.model.get('tracks').bind('add', this.addTrack, this);
+            this.model.get('tracks').bind('reset', this.addAllTracks, this);
+
+            this.model.get('artists').fetch();
+            this.model.get('albums').fetch();
         },
         addOne: function(a) {
-            var view = new CategoryView({model: a, tracks: this.tracks});
+            var view = new CategoryView({model: a, app: this.model});
             var type = a.get('type');
             $('#' + type).append(view.render().el);
-            if (type in this.initial && this.initial[type] === a.get('name')) {
-                this.tracks.load(a);
-                this.initial = {};
-            }
         },
         addAllArtists: function() {
             this.artists.each(this.addOne, this);
@@ -304,7 +328,30 @@
         addAllTracks: function() {
             $('#tracks').empty();
             this.tracks.each(this.addTrack, this);
-        }
+        },
+        selectionChanged: function(e) {
+            console.log('selection changed');
+            console.log(e)
+        },
+    });
+
+    var AppRouter = Backbone.Router.extend({
+        initialize: function(args) {
+            this.app = args.app;
+        },
+        routes: {
+            '': 'overview',
+            ':collection/:item': 'details',
+        },
+        'overview': function() {
+            this.app.set('selected', null);
+        },
+        'details': function(collection, item) {
+            this.app.set('selected', {
+                collection: collection,
+                item: item,
+            });
+        },
     });
 
     // constants
@@ -322,11 +369,24 @@
         };
         var tracks = new TrackList({collections: collections});
         var nowPlaying = new NowPlayingView({tracks: tracks});
-        var app = new AppView({
+        var app = new App({
             artists: artists,
             albums: albums,
             tracks: tracks,
+        });
+        var appView = new AppView({
+            model: app,
             nowPlaying: nowPlaying,
+        });
+        var router = new AppRouter({app: app});
+        Backbone.history.start();
+
+        $(document).delegate('a', 'click', function(e) {
+            var a = $(this).attr('href');
+            if (a.length > 0 && a[0] === '/' && a.slice(2) !== '//') {
+                e.preventDefault();
+                Backbone.Router.navigate(a, {trigger: true});
+            }
         });
 
         // global key handlers for playback control

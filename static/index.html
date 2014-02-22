@@ -28,7 +28,7 @@
 
         <script type="text/template" id="list-template">
             <div class="<%= selected ? 'selected' : '' %> row <%= type %>">
-                <a class="<%= type %>" href="#<%= type %>=<%= encodeURIComponent(name) %>"><%= name %></a>
+                <a class="<%= type %>" href="#/<%= type %>/<%= encodeURIComponent(name) %>"><%= name %></a>
             </div>
         </script>
 
