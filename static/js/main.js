@@ -35,16 +35,19 @@
         selectedChanged: function(e) {
             var prev = this.attributes._prevSelected;
             var curr = this.attributes.selected;
+            var collection;
 
             // unselect the previous selection
             if (prev) {
-                var collection = this.get(prev.collection + 's'); // pluralize
-                var items = collection.filter(function(item) {
-                    return item.get('name') === prev.item;
-                });
-                if (items.length)
-                    items[0].set('selected', false);
+                collection = this.get(prev.collection + 's'); // pluralize
+                collection.get(prev.item).set('selected', false);
             }
+
+            collection = this.get(curr.collection + 's');
+            var item = collection.get(curr.item);
+            // might not have it yet, if initial page load
+            if (item)
+                item.set('selected', true);
 
             this.set('_prevSelected', curr);
         }
