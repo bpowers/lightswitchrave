@@ -19,18 +19,17 @@
         },
         initialize: function() {
             this.bind('change:selected', this.selectedChanged, this);
-            this.get('artists').bind('add', this.collectionItemAdded, this);
-            this.get('albums').bind('add', this.collectionItemAdded, this);
+            this.get('artists').bind('reset', this.collectionChanged, this);
+            this.get('albums').bind('reset', this.collectionChanged, this);
         },
-        collectionItemAdded: function(i) {
+        collectionChanged: function(c) {
             var selected = this.attributes.selected;
             if (!selected)
                 return;
 
-            if (i.get('type') === selected.collection &&
-                i.get('name') === selected.item) {
-                i.set('selected', true);
-            }
+            var item = c.get(selected.item);
+            if (item && item.get('type') === selected.collection)
+                item.set('selected', true);
         },
         selectedChanged: function(e) {
             var prev = this.attributes._prevSelected;
@@ -235,7 +234,7 @@
                 return;
             var found = false;
             var i;
-            for (i in Tracks.models) {
+            for (i in this.tracks.models) {
                 if (this.curr === this.tracks.models[i]) {
                     found = true;
                     if (i > 0)
@@ -251,7 +250,7 @@
             } else {
                 // found one. play it.
                 if (this.el.currentTime < 5)
-                    this.start(Tracks.models[i], !this.shouldPlay);
+                    this.start(this.tracks.models[i], !this.shouldPlay);
                 else
                     this.el.currentTime = 0;
                 return true;
@@ -299,17 +298,17 @@
         initialize: function(args) {
             this.nowPlaying = args.nowPlaying;
 
-            this.model.get('artists').bind('add', this.addOne, this);
-            this.model.get('artists').bind('reset', this.addAllArtists, this);
+            var artists = this.model.get('artists');
+            artists.bind('reset', this.addAllArtists, this);
+            artists.bind('change:selected', this.itemSelected, this);
+            artists.fetch({reset: true});
 
-            this.model.get('albums').bind('add', this.addOne, this);
-            this.model.get('albums').bind('reset', this.addAllAlbums, this);
+            var albums = this.model.get('albums');
+            albums.bind('reset', this.addAllAlbums, this);
+            albums.bind('change:selected', this.itemSelected, this);
+            albums.fetch({reset: true});
 
-            this.model.get('tracks').bind('add', this.addTrack, this);
             this.model.get('tracks').bind('reset', this.addAllTracks, this);
-
-            this.model.get('artists').fetch();
-            this.model.get('albums').fetch();
         },
         addOne: function(a) {
             var view = new CategoryView({model: a, app: this.model});
@@ -317,10 +316,10 @@
             $('#' + type).append(view.render().el);
         },
         addAllArtists: function() {
-            this.artists.each(this.addOne, this);
+            this.model.get('artists').each(this.addOne, this);
         },
         addAllAlbums: function() {
-            this.albums.each(this.addOne, this);
+            this.model.get('albums').each(this.addOne, this);
         },
         addTrack: function(t) {
             var view = new TrackView({model: t, nowPlaying: this.nowPlaying});
@@ -328,8 +327,12 @@
         },
         addAllTracks: function() {
             $('#tracks').empty();
-            this.tracks.each(this.addTrack, this);
+            this.model.get('tracks').each(this.addTrack, this);
         },
+        itemSelected: function(i) {
+            if (i.get('selected'))
+                this.model.get('tracks').load(i);
+        }
     });
 
     var AppRouter = Backbone.Router.extend({
