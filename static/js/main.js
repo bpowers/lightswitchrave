@@ -354,6 +354,15 @@
         },
     });
 
+    function overrideLocalNav(e) {
+        var a = $(this).attr('href');
+        // destination relative to current host?  delegate to backbone
+        if (a.length > 0 && a[0] === '/' && a.slice(2) !== '//') {
+            e.preventDefault();
+            Backbone.Router.navigate(a, {trigger: true});
+        }
+    }
+
     // constants
     var codeSpace = ' '.charCodeAt();
     var codeArrowRight = 39;
@@ -381,13 +390,7 @@
         var router = new AppRouter({app: app});
         Backbone.history.start();
 
-        $(document).delegate('a', 'click', function(e) {
-            var a = $(this).attr('href');
-            if (a.length > 0 && a[0] === '/' && a.slice(2) !== '//') {
-                e.preventDefault();
-                Backbone.Router.navigate(a, {trigger: true});
-            }
-        });
+        $(document).delegate('a', 'click', overrideLocalNav);
 
         // global key handlers for playback control
         $(document).bind('keyup', function(e) {
