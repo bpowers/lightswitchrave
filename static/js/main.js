@@ -129,17 +129,6 @@
             this.collections = args.collections;
         },
         load: function(m) {
-            /*
-            var collections = this.collections;
-            // clear any existing highlighted artist or album
-            for (k in collections) {
-                if (collections[k].curr) {
-                    collections[k].curr.set('selected', false);
-                    collections[k].curr = null;
-                }
-            }
-            collections[m.get('type')].curr = m;*/
-            m.set('selected', true);
             this.url = 'api/' + m.get('type') + '/' + encodeURIComponent(m.get('name'));
             this.fetch({reset: true});
         }
