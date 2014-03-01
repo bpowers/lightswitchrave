@@ -1,7 +1,7 @@
 NAME = $(shell basename `pwd` | cut -d '-' -f 1)
 VERSION = 0.1
 
-HOST = lightswitchrave.net
+HOST ?= lightswitchrave.net
 
 EXE = $(shell basename `pwd`)
 PKGNAME = $(EXE)
