@@ -3,7 +3,7 @@ Description=%NAME% service
 After=syslog.target network.target
 
 [Service]
-ExecStart=/opt/%NAME%/%NAME%-service
+ExecStart=/opt/%NAME%/%NAME%-service -dev
 WorkingDirectory=/opt/%NAME%
 User=%NAME%
 Restart=always
