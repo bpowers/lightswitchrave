@@ -1,4 +1,4 @@
-_go_.*
 *~
 *.pyc
-site
+/site
+/lightswitchrave-service
